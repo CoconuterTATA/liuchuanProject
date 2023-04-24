@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import SolidityEditor from '../components/SolidityEditor.vue';
 // import OtherComponent from '../components/OtherComponent.vue'; // 导入其他组件
 import DomainSpecificLanguage from '../components/DomainSpecificLanguage.vue';
+import ContractDataVisualization from '../components/ContractDataVisualization.vue';
 
 const routes = [
   {
@@ -13,6 +14,11 @@ const routes = [
     path: '/dsl',
     name: 'DomainSpecificLanguage',
     component: DomainSpecificLanguage
+  },
+  {
+    path: '/chart',
+    name: 'ContractDataVisualization',
+    component: ContractDataVisualization
   },
 //   {
 //     path: '/other',

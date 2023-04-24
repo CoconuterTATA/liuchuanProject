@@ -59,8 +59,8 @@ export default {
         // cookie: cookie,
       });
 
-      if (response.data) {
-        this.codeText = response.data;
+      if (response.data.code) {
+        this.codeText = response.data.code;
       } else {
         this.codeText = "未获取到结果";
       }

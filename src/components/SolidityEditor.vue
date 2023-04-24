@@ -1,10 +1,12 @@
 <template>
   <div class="solidity-editor-container">
     <textarea class="editor-container" v-model="editorContent"></textarea>
-    <button class="compile-button" @click="compile">编译</button>
-    <button class="connect-wallet-button" @click="connectWallet">连接钱包</button>
-    <button class="contract-deply" @click="deployContract">部署合约</button>
-    <button class="check-events-button" @click="addGeneratedEvents">检查</button>
+    <div class="buttons-container">
+      <button class="compile-button" @click="compile">编译</button>
+      <button class="connect-wallet-button" @click="connectWallet">连接钱包</button>
+      <button class="contract-deply" @click="deployContract">部署合约</button>
+      <button class="check-events-button" @click="addGeneratedEvents">检查</button>
+    </div>
     <div class="input-container">
       <label for="gas-price">Gas Price (gwei)</label>
       <input type="number" id="gas-price" v-model="gasPrice" />
@@ -36,30 +38,44 @@ export default {
       gasPrice: '',
       gasLimit: '',
       initialData: '',
+      // events: [],
     };
   },
   methods: {
+    async fetchContractData() {
+    // 使用您的合约实例、ABI 和已部署的合约地址
+    const contractInstance = new this.web3.eth.Contract(this.abi, this.deployedContractAddress);
+
+    // 从合约中获取变量的值，您需要调用相应的合约方法
+    const variableValue = await contractInstance.methods.getYourVariable().call();
+
+    // 将获取到的变量值添加到图表数据中
+    this.chartData.labels.push(Date.now());
+    this.chartData.datasets[0].data.push(variableValue);
+  },
     async addGeneratedEvents() {
-      try {
-        // 发送合约代码到后端，生成事件
-        const response = await axios.post('http://localhost:8080/generateEvents', { input: this.editorContent });
+  try {
+    // 发送合约代码到后端，生成事件
+    const response = await axios.post('http://localhost:8080/generateEvents', { input: this.editorContent });
 
-        // 解析后端返回的事件
-        const events = JSON.parse(response.data.events);
-        console.log(events);
+    // 解析后端返回的事件
+    // const events = JSON.parse(response.data.events);
+    const events = response.data.events;
+    alert(JSON.stringify(events));
 
-        // 将事件添加到合约代码中
-        let newEditorContent = this.editorContent;
-        events.forEach(event => {
-          newEditorContent += '\n' + event;
-        });
+    // 将事件添加到合约代码中
+    let newEditorContent = this.editorContent;
+    events.forEach(event => {
+      newEditorContent += '\n' + event;
+    });
 
-        // 更新编辑器内容
-        this.editorContent = newEditorContent;
-      } catch (error) {
-        console.error(error);
-      }
-    },
+    // 更新编辑器内容
+    this.editorContent = newEditorContent;
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  }
+},
     async deployContract() {
   try {
     // 获取当前网络 ID
@@ -77,18 +93,22 @@ export default {
     const accounts = await web3.eth.getAccounts();
     const gasPrice = this.gasPrice;
     const gasLimit = this.gasLimit;
-
+    const initialData = this.initialData !== '' ? parseInt(this.initialData) : null;
     const deployOptions = {
       data: bytecode,
+      arguments: [initialData]
     };
 
     if (this.initialData !== '') {
-      deployOptions.arguments = [this.initialData];
+      deployOptions.arguments = [parseInt(this.initialData)];
     }
 
     const result = await contract.deploy(deployOptions).send({ from: accounts[0], gasPrice: gasPrice * 1e9, gas: gasLimit });
+    this.deployedContractAddress = result.options.address;
+    // await axios.post('http://localhost:8080/storeContract', { contractAddress: this.deployedContractAddress, contractAbi: this.compiledResult.abi });
     alert('合约部署成功！合约地址：' + result.options.address);
   } catch (error) {
+    console.log(this.initialData)
     console.error(error);
   }
 },
@@ -130,6 +150,14 @@ export default {
   
  
 <style>
+
+.buttons-container {
+  display: flex;
+  justify-content: space-between;
+  width: 600px;
+  margin-bottom: 20px;
+}
+
 .solidity-editor-container {
   height: 80vh;
   width: 160vh;

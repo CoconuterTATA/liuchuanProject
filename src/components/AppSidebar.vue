@@ -7,6 +7,9 @@
       <li>
         <router-link to="/dsl" class="nav-link" active-class="active">DSL</router-link>
       </li>
+      <li>
+        <router-link to="/chart" class="nav-link" active-class="active">变量图</router-link>
+      </li>
     </ul>
   </div>
 </template>

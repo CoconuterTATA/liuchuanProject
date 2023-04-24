@@ -1,6 +1,6 @@
 <template>
     <header class="AppHeader">
-      <h1 class="title">MyProject——HNU</h1>
+      <h1 class="title">面向金融庞氏骗局监管系统</h1>
     </header>
   </template>
   
